@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { KanjiData } from "@/types/kanji";
 import { KanjiProgressItem } from "@/types/progress";
 import Badge from "@/components/ui/Badge";
+import { useSpeech } from "@/hooks/useSpeech";
 
 interface KanjiCardProps {
   kanji: KanjiData;
@@ -9,18 +12,39 @@ interface KanjiCardProps {
 }
 
 export default function KanjiCard({ kanji, progress }: KanjiCardProps) {
+  const { speakKanji, isSpeaking, speakingText } = useSpeech();
   const isMastered = progress?.mastered;
   const isSeen = progress && progress.seen > 0;
+  const isThisSpeaking = isSpeaking && speakingText === kanji.character;
+
+  const handleSpeak = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    speakKanji(kanji.character);
+  };
 
   return (
     <Link
       href={`/browse/${encodeURIComponent(kanji.character)}`}
       className="group relative flex flex-col justify-between p-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl hover:border-red-400 dark:hover:border-red-600/60 hover:shadow-md transition-all duration-200 focus-visible:outline-2 focus-visible:outline-red-500"
     >
-      {/* Top badges: JLPT + Mastery indicator */}
+      {/* Top badges: JLPT + Audio Pronounce Button + Mastery indicator */}
       <div className="flex items-center justify-between gap-1 mb-2">
         <Badge level={kanji.jlpt} variant="jlpt" />
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleSpeak}
+            title={`Dengarkan pelafalan kanji 「${kanji.character}」`}
+            aria-label={`Dengarkan pelafalan kanji ${kanji.character}`}
+            className={`p-1 rounded-md transition-colors ${
+              isThisSpeaking
+                ? "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400 animate-pulse"
+                : "text-stone-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+            }`}
+          >
+            <span className="text-xs">🔊</span>
+          </button>
           {isMastered ? (
             <span
               className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
@@ -68,4 +92,3 @@ export default function KanjiCard({ kanji, progress }: KanjiCardProps) {
     </Link>
   );
 }
-

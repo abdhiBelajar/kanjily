@@ -5,6 +5,7 @@ import Link from "next/link";
 import { KanjiData } from "@/types/kanji";
 import { useProgress } from "@/hooks/useProgress";
 import { useWords } from "@/hooks/useWords";
+import { useSpeech } from "@/hooks/useSpeech";
 import { getQuizSets, addKanjiToQuizSet, saveQuizSet } from "@/lib/storage/quizSets";
 import StrokeOrder from "./StrokeOrder";
 import Badge from "@/components/ui/Badge";
@@ -16,6 +17,15 @@ interface KanjiDetailProps {
 export default function KanjiDetail({ kanji }: KanjiDetailProps) {
   const { progress, toggleMastery } = useProgress();
   const { data: apiWords } = useWords(kanji.character);
+  const {
+    speak,
+    speakKanji,
+    speakReading,
+    speakWord,
+    isSpeaking,
+    speakingText,
+    isSupported,
+  } = useSpeech();
   const currentProgress = progress[kanji.character];
   const isMastered = currentProgress?.mastered || false;
 
@@ -151,10 +161,22 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
               )}
             </div>
 
-            <div className="my-3 text-center py-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl">
-              <span className="font-kanji text-8xl sm:text-9xl text-stone-900 dark:text-stone-100 select-none">
+            <div className="my-3 text-center py-4 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl relative group">
+              <span className="font-kanji text-8xl sm:text-9xl text-stone-900 dark:text-stone-100 select-none block">
                 {kanji.character}
               </span>
+              <div className="mt-2 flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => speakKanji(kanji.character)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-200/70 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-red-500"
+                  title={`Dengarkan pelafalan kanji 「${kanji.character}」`}
+                  aria-label={`Dengarkan pelafalan kanji ${kanji.character}`}
+                >
+                  <span className={isSpeaking && speakingText === kanji.character ? "animate-bounce text-red-600" : ""}>🔊</span>
+                  <span>{isSpeaking && speakingText === kanji.character ? "Berbicara..." : "Dengar Kanji"}</span>
+                </button>
+              </div>
             </div>
 
             <div className="text-center mt-3">
@@ -211,12 +233,17 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
           {kanji.kunyomi && kanji.kunyomi.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {kanji.kunyomi.map((read, idx) => (
-                <span
+                <button
                   key={idx}
-                  className="px-3 py-1.5 rounded-lg bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300 font-kanji text-base border border-red-200/60 dark:border-red-900/60"
+                  type="button"
+                  onClick={() => speakReading(read)}
+                  title={`Dengarkan bacaan Kun'yomi: ${read}`}
+                  aria-label={`Dengarkan bacaan Kun'yomi ${read}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300 font-kanji text-base border border-red-200/60 dark:border-red-900/60 hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors focus-visible:outline-2 focus-visible:outline-red-500"
                 >
-                  {read}
-                </span>
+                  <span>{read}</span>
+                  <span className="text-xs text-red-600 dark:text-red-400">🔊</span>
+                </button>
               ))}
             </div>
           ) : (
@@ -235,12 +262,17 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
           {kanji.onyomi && kanji.onyomi.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {kanji.onyomi.map((read, idx) => (
-                <span
+                <button
                   key={idx}
-                  className="px-3 py-1.5 rounded-lg bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200 font-kanji text-base border border-stone-200 dark:border-stone-700"
+                  type="button"
+                  onClick={() => speakReading(read)}
+                  title={`Dengarkan bacaan On'yomi: ${read}`}
+                  aria-label={`Dengarkan bacaan On'yomi ${read}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200 font-kanji text-base border border-stone-200 dark:border-stone-700 hover:bg-stone-200 dark:hover:bg-stone-750 transition-colors focus-visible:outline-2 focus-visible:outline-red-500"
                 >
-                  {read}
-                </span>
+                  <span>{read}</span>
+                  <span className="text-xs text-stone-600 dark:text-stone-400">🔊</span>
+                </button>
               ))}
             </div>
           ) : (
@@ -259,12 +291,17 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
             </div>
             <div className="flex flex-wrap gap-2">
               {kanji.name_readings.map((read, idx) => (
-                <span
+                <button
                   key={idx}
-                  className="px-2.5 py-1 rounded-md bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200 font-kanji text-sm border border-amber-200/50 dark:border-amber-900/40"
+                  type="button"
+                  onClick={() => speakReading(read)}
+                  title={`Dengarkan bacaan Nanori: ${read}`}
+                  aria-label={`Dengarkan bacaan Nanori ${read}`}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-900 dark:bg-amber-950/30 dark:text-amber-200 font-kanji text-sm border border-amber-200/50 dark:border-amber-900/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors focus-visible:outline-2 focus-visible:outline-red-500"
                 >
-                  {read}
-                </span>
+                  <span>{read}</span>
+                  <span className="text-[11px] text-amber-700 dark:text-amber-400">🔊</span>
+                </button>
               ))}
             </div>
           </div>
@@ -286,9 +323,20 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
                 className="p-3.5 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg hover:border-stone-300 dark:hover:border-stone-700 transition-colors"
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-kanji text-lg font-bold text-stone-900 dark:text-stone-100">
-                    {ex.word}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-kanji text-lg font-bold text-stone-900 dark:text-stone-100">
+                      {ex.word}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => speakWord(ex.reading || ex.word)}
+                      title={`Dengarkan kosakata ${ex.word}`}
+                      aria-label={`Dengarkan kosakata ${ex.word}`}
+                      className="p-1 rounded text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                    >
+                      🔊
+                    </button>
+                  </div>
                   <span className="text-xs text-red-600 dark:text-red-400 font-mono">
                     {ex.reading}
                   </span>
@@ -314,15 +362,30 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
               {apiWords.slice(0, 9).map((w, idx) => {
                 const primaryVariant = w.variants[0];
                 const gloss = w.meanings.map((m) => m.glosses.join("; ")).join(", ");
+                const wordToPronounce =
+                  primaryVariant?.pronounced ||
+                  primaryVariant?.written ||
+                  kanji.character;
                 return (
                   <div
                     key={idx}
                     className="p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg text-xs"
                   >
                     <div className="flex items-baseline justify-between gap-1 mb-1">
-                      <span className="font-kanji text-base font-bold text-stone-900 dark:text-stone-100">
-                        {primaryVariant ? primaryVariant.written : kanji.character}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-kanji text-base font-bold text-stone-900 dark:text-stone-100">
+                          {primaryVariant ? primaryVariant.written : kanji.character}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => speakWord(wordToPronounce)}
+                          title={`Dengarkan kosakata ${primaryVariant?.written || kanji.character}`}
+                          aria-label={`Dengarkan kosakata ${primaryVariant?.written || kanji.character}`}
+                          className="p-0.5 rounded text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors text-xs"
+                        >
+                          🔊
+                        </button>
+                      </div>
                       {primaryVariant?.pronounced && (
                         <span className="text-[11px] text-red-600 dark:text-red-400 font-mono">
                           {primaryVariant.pronounced}
@@ -354,8 +417,19 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
                 key={idx}
                 className="p-4 bg-stone-50 dark:bg-stone-950 border-l-4 border-red-600 rounded-r-lg"
               >
-                <div className="font-kanji text-base font-semibold text-stone-900 dark:text-stone-100">
-                  {st.japanese}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-kanji text-base font-semibold text-stone-900 dark:text-stone-100">
+                    {st.japanese}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => speak(st.japanese, { lang: "ja-JP", rate: 0.85 })}
+                    title="Dengarkan pelafalan kalimat lengkap"
+                    aria-label={`Dengarkan pelafalan kalimat ${st.japanese}`}
+                    className="p-1 rounded text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors text-sm"
+                  >
+                    🔊
+                  </button>
                 </div>
                 <div className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
                   {st.reading}
@@ -366,6 +440,13 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Fallback info jika TTS tidak didukung browser */}
+      {!isSupported && (
+        <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 text-xs">
+          Peramban Anda belum mendukung Web Speech API Text-to-Speech untuk suara Jepang.
         </div>
       )}
 

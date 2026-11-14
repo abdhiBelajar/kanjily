@@ -10,6 +10,7 @@ import { getLastPlayedQuiz } from "@/lib/storage/quizHistory";
 import { KanjiData } from "@/types/kanji";
 import Badge from "@/components/ui/Badge";
 import ProgressBar from "@/components/ui/ProgressBar";
+import { useSpeech } from "@/hooks/useSpeech";
 
 function getInitialKanjiOfDay(): KanjiData {
   const today = new Date();
@@ -23,6 +24,7 @@ export default function HomeClient() {
   const { stats, isLoaded } = useProgress();
   const isMounted = useIsMounted();
   const [kanjiOfDay] = useState<KanjiData>(getInitialKanjiOfDay);
+  const { speakKanji, isSpeaking, speakingText } = useSpeech();
 
   const lastQuiz = useMemo(() => {
     if (!isMounted) return null;
@@ -167,10 +169,24 @@ export default function HomeClient() {
 
             {kanjiOfDay && (
               <div className="flex flex-col items-center text-center my-3">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 shadow-inner">
-                  <span className="font-kanji text-6xl sm:text-7xl text-stone-900 dark:text-stone-100">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 flex flex-col items-center justify-center rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 shadow-inner">
+                  <span className="font-kanji text-5xl sm:text-6xl text-stone-900 dark:text-stone-100">
                     {kanjiOfDay.character}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => speakKanji(kanjiOfDay.character)}
+                    title={`Dengarkan pelafalan kanji 「${kanjiOfDay.character}」`}
+                    aria-label={`Dengarkan pelafalan kanji ${kanjiOfDay.character}`}
+                    className={`mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold transition-colors ${
+                      isSpeaking && speakingText === kanjiOfDay.character
+                        ? "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400 animate-pulse"
+                        : "text-stone-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                    }`}
+                  >
+                    <span>🔊</span>
+                    <span>Dengar</span>
+                  </button>
                 </div>
 
                 <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-3">

@@ -1,4 +1,7 @@
+"use client";
+
 import { Question } from "@/types/quiz";
+import { useSpeech } from "@/hooks/useSpeech";
 
 interface QuizCardProps {
   question: Question;
@@ -13,12 +16,15 @@ export default function QuizCard({
   questionNumber,
   totalQuestions,
   timerSeconds = 20,
-  timerEnabled = true
+  timerEnabled = true,
 }: QuizCardProps) {
+  const { speakKanji, isSpeaking, speakingText } = useSpeech();
+  const isThisSpeaking = isSpeaking && speakingText === question.kanji;
+
   const typeLabels = {
     meaning: "Tebak Arti",
     reading: "Tebak Cara Baca",
-    kanji: "Tebak Karakter Kanji"
+    kanji: "Tebak Karakter Kanji",
   };
 
   const timerColor =
@@ -41,8 +47,19 @@ export default function QuizCard({
 
         {timerEnabled && (
           <div className="flex items-center gap-1.5 text-xs font-mono" aria-live="polite">
-            <svg className="w-4 h-4 text-stone-600 dark:text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-4 h-4 text-stone-600 dark:text-stone-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span className={timerColor}>{timerSeconds}d</span>
           </div>
@@ -52,10 +69,24 @@ export default function QuizCard({
       {/* Main Prompt area */}
       <div className="text-center py-4">
         {question.type !== "kanji" && (
-          <div className="my-2 select-none">
+          <div className="my-2 select-none flex flex-col items-center">
             <span className="font-kanji text-7xl sm:text-8xl text-stone-900 dark:text-stone-100 inline-block p-4 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 shadow-inner">
               {question.kanji}
             </span>
+            <button
+              type="button"
+              onClick={() => speakKanji(question.kanji)}
+              title={`Dengarkan pelafalan kanji 「${question.kanji}」`}
+              aria-label={`Dengarkan pelafalan kanji ${question.kanji}`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 mt-2.5 rounded-lg border text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-red-500 ${
+                isThisSpeaking
+                  ? "bg-red-50 border-red-300 text-red-600 dark:bg-red-950/60 dark:border-red-800 dark:text-red-400 animate-pulse"
+                  : "bg-white dark:bg-stone-850 border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
+              }`}
+            >
+              <span>🔊</span>
+              <span>{isThisSpeaking ? "Mendengarkan..." : "Dengar Kanji"}</span>
+            </button>
           </div>
         )}
 
@@ -66,4 +97,3 @@ export default function QuizCard({
     </div>
   );
 }
-
