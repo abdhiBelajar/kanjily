@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg-main: #fafaf9;
+    --text-main: #1c1917;
+    --card-bg: #ffffff;
+    --card-border: #e7e5e4;
+    --accent: #dc2626;
+  }
+
+  .dark {
+    --bg-main: #0c0a09;
+    --text-main: #f5f5f4;
+    --card-bg: #1c1917;
+    --card-border: #292524;
+    --accent: #ef4444;
+  }
+
+  /* R-39: Every interactive element shows cursor: pointer */
+  a[href],
+  button,
+  summary,
+  select,
+  input[type="checkbox"],
+  input[type="radio"],
+  label[for] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+
+  /* R-32: Visible focus indicators */
+  :focus-visible {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom kanji typography */
+.font-kanji {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+}
+
+@keyframes stroke-dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-stroke {
+  animation: stroke-dash 0.8s ease-out forwards;
+}
+
+/* Smooth transitions */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
