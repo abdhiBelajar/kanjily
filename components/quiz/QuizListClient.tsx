@@ -14,6 +14,7 @@ export default function QuizListClient() {
   const isMounted = useIsMounted();
   const [dataVersion, setDataVersion] = useState(0);
   const [isBuilding, setIsBuilding] = useState(false);
+  const [autoGenerateImmediate, setAutoGenerateImmediate] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const sets = useMemo(() => {
@@ -87,14 +88,30 @@ export default function QuizListClient() {
         </div>
 
         {!isBuilding && (
-          <button
-            type="button"
-            onClick={() => setIsBuilding(true)}
-            className="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-xs transition-colors flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-red-500"
-          >
-            <span>+</span>
-            <span>Buat Set Kuis Baru</span>
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            <button
+              type="button"
+              onClick={() => {
+                setAutoGenerateImmediate(true);
+                setIsBuilding(true);
+              }}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white text-xs font-semibold shadow-xs transition-all flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-red-500"
+            >
+              <span>⚡</span>
+              <span>Generate Kuis Otomatis</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAutoGenerateImmediate(false);
+                setIsBuilding(true);
+              }}
+              className="px-4 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 text-xs font-semibold shadow-xs transition-colors flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-stone-500"
+            >
+              <span>+</span>
+              <span>Buat Manual</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -102,8 +119,12 @@ export default function QuizListClient() {
       {isBuilding && (
         <QuizBuilder
           allKanji={kanjiList}
+          autoGenerateOnMount={autoGenerateImmediate}
           onSetCreated={handleSetCreated}
-          onCancel={() => setIsBuilding(false)}
+          onCancel={() => {
+            setIsBuilding(false);
+            setAutoGenerateImmediate(false);
+          }}
         />
       )}
 
