@@ -27,9 +27,14 @@ export function generateQuestions(
 
   return shuffledTargets.map((correctKanji, index) => {
     // Tentukan jenis soal untuk item ini
-    let currentType: "meaning" | "reading" | "kanji" = "meaning";
+    let currentType: "meaning" | "reading" | "kanji" | "writing" = "meaning";
     if (quizType === "mixed") {
-      const types: ("meaning" | "reading" | "kanji")[] = ["meaning", "reading", "kanji"];
+      const types: ("meaning" | "reading" | "kanji" | "writing")[] = [
+        "meaning",
+        "reading",
+        "kanji",
+        "writing",
+      ];
       currentType = types[index % types.length];
     } else {
       currentType = quizType;
@@ -48,12 +53,12 @@ export function generateQuestions(
       correctOption = {
         id: `opt-correct-${correctKanji.character}`,
         text: correctKanji.meaningId || correctKanji.meaning,
-        subtext: correctKanji.meaning
+        subtext: correctKanji.meaning,
       };
       distractorOptions = distractors.map((d) => ({
         id: `opt-dist-${d.character}`,
         text: d.meaningId || d.meaning,
-        subtext: d.meaning
+        subtext: d.meaning,
       }));
     } else if (currentType === "reading") {
       prompt = `Bagaimana cara baca (On'yomi / Kun'yomi) untuk kanji 「${correctKanji.character}」?`;
@@ -62,7 +67,10 @@ export function generateQuestions(
       correctOption = {
         id: `opt-correct-${correctKanji.character}`,
         text: primaryReading,
-        subtext: secondaryReading && secondaryReading !== primaryReading ? `On: ${secondaryReading}` : undefined
+        subtext:
+          secondaryReading && secondaryReading !== primaryReading
+            ? `On: ${secondaryReading}`
+            : undefined,
       };
       distractorOptions = distractors.map((d) => {
         const dRead = d.kunyomi[0] || d.onyomi[0] || "-";
@@ -70,9 +78,24 @@ export function generateQuestions(
         return {
           id: `opt-dist-${d.character}`,
           text: dRead,
-          subtext: dOn && dOn !== dRead ? `On: ${dOn}` : undefined
+          subtext: dOn && dOn !== dRead ? `On: ${dOn}` : undefined,
         };
       });
+    } else if (currentType === "writing") {
+      const label = correctKanji.meaningId || correctKanji.meaning;
+      prompt = `Tuliskan karakter kanji untuk makna: "${label}"`;
+      correctOption = {
+        id: `opt-correct-${correctKanji.character}`,
+        text: `Tepat & Benar (${correctKanji.character})`,
+        subtext: correctKanji.meaningId || correctKanji.meaning,
+      };
+      distractorOptions = [
+        {
+          id: `opt-dist-${correctKanji.character}-wrong`,
+          text: "Belum Tepat (Perlu Latihan)",
+          subtext: "Perlu Latihan",
+        },
+      ];
     } else {
       // type === 'kanji'
       const label = correctKanji.meaningId || correctKanji.meaning;
@@ -80,16 +103,19 @@ export function generateQuestions(
       correctOption = {
         id: `opt-correct-${correctKanji.character}`,
         text: correctKanji.character,
-        subtext: correctKanji.kunyomi[0] || correctKanji.onyomi[0]
+        subtext: correctKanji.kunyomi[0] || correctKanji.onyomi[0],
       };
       distractorOptions = distractors.map((d) => ({
         id: `opt-dist-${d.character}`,
         text: d.character,
-        subtext: d.kunyomi[0] || d.onyomi[0]
+        subtext: d.kunyomi[0] || d.onyomi[0],
       }));
     }
 
-    const options = shuffle([correctOption, ...distractorOptions]);
+    const options =
+      currentType === "writing"
+        ? [correctOption, ...distractorOptions]
+        : shuffle([correctOption, ...distractorOptions]);
 
     return {
       id: `q-${index + 1}-${correctKanji.character}-${Date.now()}`,
@@ -99,11 +125,12 @@ export function generateQuestions(
       options,
       correctAnswerId: correctOption.id,
       explanation: {
-        meaning: correctKanji.meaningId ? `${correctKanji.meaningId} (${correctKanji.meaning})` : correctKanji.meaning,
+        meaning: correctKanji.meaningId
+          ? `${correctKanji.meaningId} (${correctKanji.meaning})`
+          : correctKanji.meaning,
         onyomi: correctKanji.onyomi,
-        kunyomi: correctKanji.kunyomi
-      }
+        kunyomi: correctKanji.kunyomi,
+      },
     };
   });
 }
-

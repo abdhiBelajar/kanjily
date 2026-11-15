@@ -1,4 +1,4 @@
-export type QuizType = "meaning" | "reading" | "kanji" | "mixed";
+export type QuizType = "meaning" | "reading" | "kanji" | "writing" | "mixed";
 
 export interface QuizSet {
   id: string;
@@ -20,7 +20,7 @@ export interface Question {
   id: string;
   kanji: string;
   prompt: string;
-  type: "meaning" | "reading" | "kanji";
+  type: "meaning" | "reading" | "kanji" | "writing";
   options: QuestionOption[];
   correctAnswerId: string;
   explanation: {
@@ -50,4 +50,3 @@ export interface QuizHistoryItem {
   date: string;
   answers?: QuizAnswerRecord[];
 }
-

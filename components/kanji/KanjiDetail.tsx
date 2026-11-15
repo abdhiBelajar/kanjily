@@ -3,11 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { KanjiData } from "@/types/kanji";
+import { QuizSet } from "@/types/quiz";
 import { useProgress } from "@/hooks/useProgress";
 import { useWords } from "@/hooks/useWords";
 import { useSpeech } from "@/hooks/useSpeech";
 import { getQuizSets, addKanjiToQuizSet, saveQuizSet } from "@/lib/storage/quizSets";
+import { PRESET_QUIZ_SETS } from "@/lib/data/kanjiDataset";
 import StrokeOrder from "./StrokeOrder";
+import KanjiWritingCanvas from "./KanjiWritingCanvas";
 import Badge from "@/components/ui/Badge";
 
 interface KanjiDetailProps {
@@ -30,7 +33,8 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
   const isMastered = currentProgress?.mastered || false;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [quizSets, setQuizSets] = useState(() => getQuizSets());
+  const [practiceMode, setPracticeMode] = useState<"animation" | "canvas">("animation");
+  const [quizSets, setQuizSets] = useState<QuizSet[]>(() => PRESET_QUIZ_SETS);
   const [selectedSetId, setSelectedSetId] = useState("");
   const [newSetTitle, setNewSetTitle] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -210,13 +214,74 @@ export default function KanjiDetail({ kanji }: KanjiDetailProps) {
           </div>
         </div>
 
-        {/* Right Column: Stroke Order Animation */}
+        {/* Right Column: Stroke Order Animation & Interactive Writing Canvas */}
         <div className="lg:col-span-7 flex flex-col items-center justify-center">
-          <StrokeOrder
-            character={kanji.character}
-            strokes={kanji.strokes}
-            strokePaths={kanji.strokePaths}
-          />
+          {/* Tab Mode Switcher: Animasi vs Menulis Mandiri */}
+          <div className="flex items-center gap-1.5 mb-4 p-1 rounded-xl bg-stone-100 dark:bg-stone-850 border border-stone-200 dark:border-stone-800">
+            <button
+              type="button"
+              onClick={() => setPracticeMode("animation")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all focus-visible:outline-2 focus-visible:outline-red-500 ${
+                practiceMode === "animation"
+                  ? "bg-white dark:bg-stone-900 text-red-600 dark:text-red-400 shadow-xs"
+                  : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+              }`}
+            >
+              <span>🎬</span>
+              <span>Urutan Goresan</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPracticeMode("canvas")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all focus-visible:outline-2 focus-visible:outline-red-500 ${
+                practiceMode === "canvas"
+                  ? "bg-white dark:bg-stone-900 text-red-600 dark:text-red-400 shadow-xs"
+                  : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200"
+              }`}
+            >
+              <span>✍️</span>
+              <span>Latihan Tulis Mandiri</span>
+            </button>
+          </div>
+
+          {practiceMode === "animation" ? (
+            <div className="w-full flex flex-col items-center animate-fadeIn">
+              <StrokeOrder
+                character={kanji.character}
+                strokes={kanji.strokes}
+                strokePaths={kanji.strokePaths}
+              />
+              <button
+                type="button"
+                onClick={() => setPracticeMode("canvas")}
+                className="mt-3 text-xs text-red-600 dark:text-red-400 hover:underline font-medium flex items-center gap-1"
+              >
+                <span>Sudah paham urutannya? Coba tulis sendiri</span>
+                <span>→</span>
+              </button>
+            </div>
+          ) : (
+            <div className="w-full flex flex-col items-center bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl p-4 sm:p-6 shadow-xs animate-fadeIn">
+              <div className="flex items-center justify-between w-full mb-3 text-xs text-stone-500 dark:text-stone-400">
+                <span className="font-semibold text-stone-700 dark:text-stone-300">
+                  Kanvas Kaligrafi Kanji (練習)
+                </span>
+                <span>Target: {kanji.strokes} Goresan</span>
+              </div>
+
+              <KanjiWritingCanvas
+                character={kanji.character}
+                targetStrokes={kanji.strokes}
+                showGuideTemplate={true}
+                width={260}
+                height={260}
+              />
+
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 text-center mt-3 max-w-sm">
+                Tuliskan kanji di atas menggunakan tetikus atau layar sentuh, lalu klik <strong>Periksa Tulisan Otomatis</strong> untuk menguji akurasi bentuk dan target goresan Anda.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

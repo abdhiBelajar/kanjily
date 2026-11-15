@@ -8,11 +8,12 @@ interface QuizSetCardProps {
 }
 
 export default function QuizSetCard({ quizSet, onDelete, lastScore }: QuizSetCardProps) {
-  const typeLabels = {
+  const typeLabels: Record<QuizSet["quiz_type"], string> = {
     meaning: "Tebak Arti",
     reading: "Tebak Bacaan",
     kanji: "Tebak Kanji",
-    mixed: "Campuran"
+    writing: "Menulis Manual",
+    mixed: "Campuran",
   };
 
   return (

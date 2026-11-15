@@ -1131,6 +1131,15 @@ export const PRESET_QUIZ_SETS = [
     quiz_type: "mixed" as const,
     created_at: "2026-11-13",
     is_preset: true
+  },
+  {
+    id: "preset-n5-writing",
+    title: "JLPT N5 : Praktik Menulis Kanji",
+    description: "Latihan menulis manual karakter kanji dasar langsung di kanvas digital dengan evaluasi mandiri.",
+    kanji_list: ["一", "二", "三", "日", "月", "木", "人", "山", "川", "大"],
+    quiz_type: "writing" as const,
+    created_at: "2026-11-14",
+    is_preset: true
   }
 ];
 

@@ -25,6 +25,7 @@ export default function QuizCard({
     meaning: "Tebak Arti",
     reading: "Tebak Cara Baca",
     kanji: "Tebak Karakter Kanji",
+    writing: "Menulis Manual",
   };
 
   const timerColor =
@@ -68,7 +69,7 @@ export default function QuizCard({
 
       {/* Main Prompt area */}
       <div className="text-center py-4">
-        {question.type !== "kanji" && (
+        {question.type !== "kanji" && question.type !== "writing" && (
           <div className="my-2 select-none flex flex-col items-center">
             <span className="font-kanji text-7xl sm:text-8xl text-stone-900 dark:text-stone-100 inline-block p-4 rounded-2xl bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 shadow-inner">
               {question.kanji}
@@ -90,7 +91,18 @@ export default function QuizCard({
           </div>
         )}
 
-        <h2 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 mt-4 max-w-lg mx-auto">
+        {question.type === "writing" && (
+          <div className="my-2 select-none flex flex-col items-center animate-fadeIn">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 shadow-inner">
+              <span className="text-3xl sm:text-4xl">✍️</span>
+            </div>
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 mt-2">
+              Tuliskan kanji pada kanvas di bawah
+            </span>
+          </div>
+        )}
+
+        <h2 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 mt-3 max-w-lg mx-auto">
           {question.prompt}
         </h2>
       </div>

@@ -10,6 +10,7 @@ import { generateQuestions } from "@/lib/utils/quizGenerator";
 import { QuizSet } from "@/types/quiz";
 import QuizCard from "@/components/quiz/QuizCard";
 import OptionsGrid from "@/components/quiz/OptionsGrid";
+import WritingQuizArea from "@/components/quiz/WritingQuizArea";
 import ResultSummary from "@/components/quiz/ResultSummary";
 import ProgressBar from "@/components/ui/ProgressBar";
 
@@ -193,21 +194,37 @@ function QuizRunnerContent({ params }: PageProps) {
             timerEnabled={timerEnabled}
           />
 
-          {/* Options Grid */}
-          <OptionsGrid
-            question={currentQ}
-            selectedOptionId={selectedOptionId}
-            isAnswered={isAnswered}
-            onSelectOption={selectOption}
-            onNext={nextQuestion}
-            isLastQuestion={currentIndex === questions.length - 1}
-          />
+          {/* Options Grid or Writing Quiz Area */}
+          {currentQ.type === "writing" ? (
+            <WritingQuizArea
+              key={currentQ.id}
+              question={currentQ}
+              selectedOptionId={selectedOptionId}
+              isAnswered={isAnswered}
+              onSelectOption={selectOption}
+              onNext={nextQuestion}
+              isLastQuestion={currentIndex === questions.length - 1}
+            />
+          ) : (
+            <OptionsGrid
+              question={currentQ}
+              selectedOptionId={selectedOptionId}
+              isAnswered={isAnswered}
+              onSelectOption={selectOption}
+              onNext={nextQuestion}
+              isLastQuestion={currentIndex === questions.length - 1}
+            />
+          )}
         </>
       )}
 
       {/* Keyboard Shortcuts Hint */}
       <div className="text-center text-[11px] text-stone-600 dark:text-stone-300 pt-2 border-t border-stone-100 dark:border-stone-850">
-        Pintasan Keyboard: tekan tombol <strong>1, 2, 3, 4</strong> atau <strong>A, B, C, D</strong> untuk memilih | <strong>Spasi/Enter</strong> untuk soal berikutnya.
+        {currentQ?.type === "writing" ? (
+          <span>Mode Menulis: Tulis kanji pada kanvas lalu periksa dan lakukan evaluasi mandiri.</span>
+        ) : (
+          <span>Pintasan Keyboard: tekan tombol <strong>1, 2, 3, 4</strong> atau <strong>A, B, C, D</strong> untuk memilih | <strong>Spasi/Enter</strong> untuk soal berikutnya.</span>
+        )}
       </div>
     </div>
   );

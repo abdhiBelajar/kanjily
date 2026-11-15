@@ -13,7 +13,19 @@ export function getQuizSets(): QuizSet[] {
       return PRESET_QUIZ_SETS;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : PRESET_QUIZ_SETS;
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(PRESET_QUIZ_SETS));
+      return PRESET_QUIZ_SETS;
+    }
+    // Pastikan preset baru yang belum ada di storage ikut ditambahkan
+    const existingIds = new Set(parsed.map((s: QuizSet) => s.id));
+    const missingPresets = PRESET_QUIZ_SETS.filter((p) => !existingIds.has(p.id));
+    if (missingPresets.length > 0) {
+      const merged = [...parsed, ...missingPresets];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      return merged;
+    }
+    return parsed;
   } catch (error) {
     console.error("Gagal membaca quiz sets dari localStorage:", error);
     return PRESET_QUIZ_SETS;

@@ -156,6 +156,7 @@ export default function QuizBuilder({
       meaning: "Tebak Arti",
       reading: "Tebak Bacaan",
       kanji: "Tebak Karakter",
+      writing: "Menulis Manual",
       mixed: "Campuran",
     };
 
@@ -254,6 +255,13 @@ export default function QuizBuilder({
             </button>
             <button
               type="button"
+              onClick={() => handleAutoGenerate("n5", 10, "writing")}
+              className="px-2.5 py-1 text-xs font-medium rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+            >
+              ✍️ Menulis N5 (10 Soal)
+            </button>
+            <button
+              type="button"
               onClick={() => handleAutoGenerate("unmastered", 10, "meaning")}
               className="px-2.5 py-1 text-xs font-medium rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
             >
@@ -322,6 +330,7 @@ export default function QuizBuilder({
               className="w-full text-xs p-2 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               <option value="mixed">Campuran Semua Tipe</option>
+              <option value="writing">Menulis Manual (Tulis Kanji di Kanvas)</option>
               <option value="meaning">Tebak Arti (Kanji ke Makna)</option>
               <option value="reading">Tebak Bacaan (Kanji ke Kana)</option>
               <option value="kanji">Tebak Karakter (Makna ke Kanji)</option>
@@ -416,6 +425,7 @@ export default function QuizBuilder({
             className="w-full text-xs p-2.5 bg-stone-50 dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             <option value="mixed">Campuran Semua Tipe</option>
+            <option value="writing">Menulis Manual (Tulis Kanji di Kanvas)</option>
             <option value="meaning">Tebak Arti (Kanji ke Makna)</option>
             <option value="reading">Tebak Bacaan (Kanji ke Hiragana/Katakana)</option>
             <option value="kanji">Tebak Karakter (Makna ke Kanji)</option>
